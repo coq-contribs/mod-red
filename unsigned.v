@@ -1,5 +1,5 @@
 (* 
-   Copyright 2001, 2007 Luc Rutten
+   Copyright 2001, 2009 Luc Rutten
 
    This file is part of ModRed.
 
@@ -24,7 +24,7 @@
    ursh (right shift, or division by a power of two), and ltw (comparison and choice).
 *)
 
-(* Coq 8.1 *)
+(* Coq 8.2 *)
 
 Require Import ZArith.
 
@@ -32,6 +32,7 @@ Require Import preparation.
 
 Open Scope Z_scope.
 
+(*
 Lemma is_in_Zpls_64 : in_Zpls 64.
 
   unfold in_Zpls. omega. Qed.
@@ -41,6 +42,8 @@ Definition in_Zpls_64 := exist in_Zpls 64 is_in_Zpls_64.
 Definition w_def : Zpls.
 
   exact in_Zpls_64. Qed.
+*)
+Variable w_def : Zpls.
 
 Definition w := proj1_sig w_def.
 
@@ -83,80 +86,81 @@ Lemma mod_in_Z__ : forall z : Z, in_Z_ (2 ^ w) (z mod 2 ^ w).
   intro z. unfold in_Z_. split. apply Zmod_le_0_z. exact lt02w. apply Zmod_lt_z_m.
   exact lt02w. Qed.
 
-Lemma is_in_Z_R_ursh : forall (x : Z_ (2 ^ w)) (i : Z_ w), in_Z_ (2 ^ w) (_Z x / 2 ^ _Z i).
+Lemma is_in_Z_R_ursh : forall (x : Z_ (2 ^ w)) (i : Z_ w), in_Z_ (2 ^ w) (x / 2 ^ i).
 
   intros x i. unfold in_Z_. split. apply Zle_0_div. apply le_0__Z. apply lt_0_Zpow. apply le_0__Z. 
-  apply Zle_lt_trans with ((2 ^ w - 1) / 2 ^ _Z i). apply Zdiv_le. apply lt_0_Zpow. apply le_0__Z. 
-  cut (_Z x < 2 ^ w). omega. apply lt_z__Z. apply Zle_lt_trans with ((2 ^ w - 1) / 2 ^ 0). 
+  apply Zle_lt_trans with ((2 ^ w - 1) / 2 ^ i). apply Zdiv_le. apply lt_0_Zpow. apply le_0__Z. 
+  cut (x < 2 ^ w). omega. apply lt_z__Z. apply Zle_lt_trans with ((2 ^ w - 1) / 2 ^ 0). 
   apply Zdiv_den_le. cut (0 < 2 ^ w). omega. exact lt02w. replace (2 ^ 0) with 1. omega. trivial. 
   apply Zle_pow_le. omega. apply le_0__Z. replace (2 ^ 0) with 1.
   replace (2 ^ w - 1) with ((2 ^ w - 1) * 1). rewrite Z_div_mult. omega. omega. ring. trivial. Qed.
 
-Lemma is_in_Z_R_uhwm : forall x y : Z_ (2 ^ w), in_Z_ (2 ^ w) (_Z x * _Z y / 2 ^ w).
+Lemma is_in_Z_R_uhwm : forall x y : Z_ (2 ^ w), in_Z_ (2 ^ w) (x * y / 2 ^ w).
 
   intros x y. unfold in_Z_. split. apply Zle_0_div. apply Zmult_le_0_compat; apply le_0__Z. 
-  exact lt02w. apply Zle_lt_trans with (_Z x * 2 ^ w / 2 ^ w). apply Zdiv_le. exact lt02w.
+  exact lt02w. apply Zle_lt_trans with (x * 2 ^ w / 2 ^ w). apply Zdiv_le. exact lt02w.
   apply Zmult_le_compat_l. apply Zlt_le_weak. apply lt_z__Z. apply le_0__Z. rewrite Z_div_mult.
   apply lt_z__Z. apply Zlt_gt. exact lt02w. Qed.
 
 (* <KEEP TOGETHER - plusminustimesuhwm *)
 Definition plusw (x y : Z_ (2 ^ w)) :=
-  exist (in_Z_ (2 ^ w)) ((_Z x + _Z y) mod 2 ^ w)
-             (mod_in_Z__ (_Z x + _Z y)).
+  exist (in_Z_ (2 ^ w)) ((x + y) mod 2 ^ w)
+             (mod_in_Z__ (x + y)).
 
 Definition minusw (x y : Z_ (2 ^ w)) :=
-  exist (in_Z_ (2 ^ w)) ((_Z x - _Z y) mod 2 ^ w) (mod_in_Z__ (_Z x - _Z y)).
+  exist (in_Z_ (2 ^ w)) ((x - y) mod 2 ^ w) (mod_in_Z__ (x - y)).
 
 Definition multw (x y : Z_ (2 ^ w)) :=
-  exist (in_Z_ (2 ^ w)) (_Z x * _Z y mod 2 ^ w) (mod_in_Z__ (_Z x * _Z y)).
+  exist (in_Z_ (2 ^ w)) (x * y mod 2 ^ w) (mod_in_Z__ (x * y)).
 
 Definition uhwm (x y : Z_ (2 ^ w)) :=
-  exist (in_Z_ (2 ^ w)) (_Z x * _Z y / 2 ^ w) (is_in_Z_R_uhwm x y).
+  exist (in_Z_ (2 ^ w)) (x * y / 2 ^ w) (is_in_Z_R_uhwm x y).
 (* KEEP TOGETHER> - plusminustimesuhwm *)
 
 (* <KEEP TOGETHER - shifts *)
 Definition multp2 (x : Z_ (2 ^ w)) (i : Z_ w) := 
-  exist (in_Z_ (2 ^ w)) (2 ^ _Z i * _Z x mod 2 ^ w) (mod_in_Z__ (2 ^ _Z i * _Z x)).
+  exist (in_Z_ (2 ^ w)) (2 ^ i * x mod 2 ^ w) (mod_in_Z__ (2 ^ i * x)).
 
 Definition ursh (x : Z_ (2 ^ w)) (i : Z_ w) := 
-  exist (in_Z_ (2 ^ w)) (_Z x / 2 ^ _Z i) (is_in_Z_R_ursh x i).
+  exist (in_Z_ (2 ^ w)) (x / 2 ^ i) (is_in_Z_R_ursh x i).
 (* KEEP TOGETHER> - shifts *)
 
 (* <KEEP TOGETHER - ltw *)
 Definition ltw (x y t e : Z_ (2 ^ w)) :=
-  If (Zlt_bool (_Z x) (_Z y)) t e.
+  If (Zlt_bool x y) t e.
 (* KEEP TOGETHER> - ltw *)
 
-Lemma Z_from_plusw : forall (x y : Z_ (2 ^ w)), _Z (plusw x y) = (_Z x + _Z y) mod (2 ^ w).
+Lemma Z_from_plusw : forall (x y : Z_ (2 ^ w)), _Z (plusw x y) = (x + y) mod (2 ^ w).
 
   trivial. Qed.
 
-Lemma Z_from_multw : forall x y : Z_ (2 ^ w), _Z (multw x y) = _Z x * _Z y mod 2 ^ w.
+Lemma Z_from_multw : forall x y : Z_ (2 ^ w), _Z (multw x y) = x * y mod 2 ^ w.
 
   trivial. Qed.
 
-Lemma Z_from_minusw : forall x y : Z_ (2 ^ w), _Z (minusw x y) = Zmod (_Z x - _Z y) (2 ^ w).
+Lemma Z_from_minusw : forall x y : Z_ (2 ^ w), _Z (minusw x y) = Zmod (x - y) (2 ^ w).
 
   trivial. Qed.
 
 Lemma Z_from_multp2 : forall (x : Z_ (2 ^ w)) (i : Z_ w),
-  _Z (multp2 x i) = Zmod (2 ^ _Z i * _Z x) (2 ^ w).
+  _Z (multp2 x i) = Zmod (2 ^ i * x) (2 ^ w).
 
   trivial. Qed.
 
-Lemma uhwm_eq : forall x y : Z_ (2 ^ w), _Z (uhwm x y) = (_Z x * _Z y) / 2 ^ w.
+Lemma uhwm_eq : forall x y : Z_ (2 ^ w), _Z (uhwm x y) = (x * y) / 2 ^ w.
 
   trivial. Qed.
 
-Lemma ltw_true : forall x y t e : Z_ (2 ^ w), _Z x < _Z y -> ltw x y t e = t.
+Lemma ltw_true : forall x y t e : Z_ (2 ^ w), x < y -> ltw x y t e = t.
 
-  intros x y t e H. unfold ltw. unfold Zlt_bool. unfold Zlt in H. rewrite H.
+
+  unfold ltw. unfold Zlt_bool. unfold Zlt. intros x y t e H. rewrite H.
   trivial. Qed.
 
-Lemma ltw_false : forall x y t e : Z_ (2 ^ w), _Z y <= _Z x -> ltw x y t e = e.
+Lemma ltw_false : forall x y t e : Z_ (2 ^ w), y <= x -> ltw x y t e = e.
 
-  intros x y t e H. unfold ltw. unfold Zlt_bool. cut (_Z x >= _Z y). unfold Zge.
-  case (_Z x ?= _Z y). trivial. intro H0. absurd (Lt <> Lt). auto. assumption.
+  intros x y t e H. unfold ltw. unfold Zlt_bool. cut (x >= y). unfold Zge.
+  case (x ?= y). trivial. intro H0. absurd (Lt <> Lt). auto. assumption.
   trivial. omega. Qed.
 
 Close Scope Z_scope.
