@@ -1,5 +1,5 @@
 (* 
-   Copyright 2001, 2007 Luc Rutten
+   Copyright 2001, 2009 Luc Rutten
 
    This file is part of ModRed.
 
@@ -24,7 +24,7 @@
 *)
 (* Faster than the version proposed in multired.v on some processors. *)
 
-(* Coq 8.1 *)
+(* Coq 8.2 *)
 
 Require Import ZArith.
 
@@ -37,12 +37,12 @@ Open Scope Z_scope.
 
 (* <KEEP TOGETHER - loop_invariant_multired_x *)
 Definition P' (M p : Z) (d r : Z_ (2 ^ w)) (h : Z) (l : Z_ (2 ^ w)) :=
-  (_Z d = (h mod M * 2 ^ w + _Z l) / 2 ^ p * 2 ^ p mod M \/
-   _Z d = (h mod M * 2 ^ w + _Z l) / 2 ^ p * 2 ^ p mod M + M \/
-   _Z d = ((h mod M + M) * 2 ^ w + _Z l) / 2 ^ p * 2 ^ p mod M \/
-   _Z d = ((h mod M + M) * 2 ^ w + _Z l) / 2 ^ p * 2 ^ p mod M + M
+  (_Z d = (h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M \/
+   _Z d = (h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + M \/
+   _Z d = ((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M \/
+   _Z d = ((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + M
   ) /\
-   _Z r = (_Z d + _Z l mod 2 ^ p mod M) mod 2 ^ w.
+   _Z r = (d + l mod 2 ^ p mod M) mod 2 ^ w.
 (* KEEP TOGETHER> *)
 
 Section parm_sec.
@@ -243,12 +243,12 @@ Lemma d_Si_eq :
   unfold P' in d_Si_eq_r_Si_eq. tauto. Qed.
 
 Lemma r_Si_eq_lit : 
-   _Z r_Si = (_Z d_Si + l mod 2 ^ p mod M) mod 2 ^ w.
+   _Z r_Si = (d_Si + l mod 2 ^ p mod M) mod 2 ^ w.
 
   unfold P' in d_Si_eq_r_Si_eq. tauto. Qed.
 
 Lemma r_Si_eq_a :
-  _Z r_Si = (_Z d_Si + (h mod M * 2 ^ w + l mod 2 ^ p mod M) mod 2 ^ p) mod 2 ^ w.
+  _Z r_Si = (d_Si + (h mod M * 2 ^ w + l mod 2 ^ p mod M) mod 2 ^ p) mod 2 ^ w.
 
   replace (h mod M * 2 ^ w) with (0 + h mod M * 2 ^ (w - p + p)). rewrite Zpower_exp. rewrite Zmult_assoc.
   rewrite Zmod_plus_distr_l with (m := 2 ^ p). rewrite Z_mod_plus. rewrite modred with (x := 0). 
@@ -280,15 +280,15 @@ Lemma mod2p : forall a b c', (a * 2 ^ w + b) mod 2 ^ p = (c' * 2 ^ w + b) mod 2 
 
 Lemma M1_r'_i_eq : M = 1 -> _Z r'_i = 0.
 
-  intro H. unfold r'_i. elim (Zle_or_lt c (_Z d_Si)); intro H0. rewrite ltw_false. simpl. rewrite r_Si_eq_lit. fold M.
+  intro H. unfold r'_i. elim (Zle_or_lt c d_Si); intro H0. rewrite ltw_false. simpl. rewrite r_Si_eq_lit. fold M.
   rewrite <- Zmod_minus_distr_l. rewrite H. cut (_Z d_Si = 1). intro H1. rewrite H1. rewrite mod_1_0. replace (1 + 0 - 1) with 0.
-  apply modred. omega. auto with a. ring. rewrite c_M in H0. rewrite p_M in H0. rewrite H in H0. simpl in H0. cut (_Z d_Si < 2).
+  apply modred. omega. auto with a. ring. rewrite c_M in H0. rewrite p_M in H0. rewrite H in H0. simpl in H0. cut (d_Si < 2).
   omega. elim d_Si_eq; intro H1. rewrite H1. apply Zlt_trans with M. apply Zmod_lt_z_m. omega. omega. elim H1; intro H2.
   rewrite H2. rewrite H. rewrite mod_1_0. omega. elim H2; intro H3. rewrite H3. rewrite H. rewrite mod_1_0. omega. rewrite H3.
   rewrite H. rewrite mod_1_0. omega. auto with a. assumption. cut (_Z d_Si = 0). intro H1. rewrite ltw_true. rewrite r_Si_eq_lit.
   rewrite H1. rewrite H. rewrite mod_1_0. simpl. apply modred. omega. exact lt02w. rewrite H1. fold c. rewrite c_M.
   auto with a. elim d_Si_eq; intro H1. rewrite H1. rewrite H. apply mod_1_0. rewrite c_M in H0. rewrite p_M in H0. 
-  rewrite H in H0. simpl in H0. cut (0 <= _Z d_Si). omega. apply le_0__Z. Qed.
+  rewrite H in H0. simpl in H0. cut (0 <= d_Si). omega. apply le_0__Z. Qed.
 
 Lemma M1_h_i_eq : M = 1 -> _Z h_i = 0.
 
@@ -336,7 +336,7 @@ Lemma r'_i_eq : _Z r'_i = (h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + (h mod M
 
   unfold r'_i. elim d_Si_eq; intro H. left. rewrite ltw_true. rewrite r_Si_eq_a. rewrite H. apply modred. apply Zplus_le_0_compat.
   apply le_0_mod_M. apply le_0_2pp. apply lt_plus_M_2p_2w. rewrite H. apply Zlt_le_trans with M. apply Zmod_lt_z_m. omega.
-  fold c. rewrite c_M. exact le_M_2pp. elim H; intro H0. elim (Zle_or_lt c (_Z d_Si)); intro H1. rewrite ltw_false. simpl. left.
+  fold c. rewrite c_M. exact le_M_2pp. elim H; intro H0. elim (Zle_or_lt c d_Si); intro H1. rewrite ltw_false. simpl. left.
   rewrite r_Si_eq_a. rewrite H0. fold M. rewrite <- Zmod_minus_distr_l. 
   replace (((h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p) mod M + M + (h mod M * 2 ^ w + (l mod 2 ^ p) mod M) mod 2 ^ p - M)
      with (((h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p) mod M + (h mod M * 2 ^ w + (l mod 2 ^ p) mod M) mod 2 ^ p).
@@ -361,7 +361,7 @@ Lemma r'_i_eq : _Z r'_i = (h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + (h mod M
   apply modred. apply Zplus_le_0_compat. apply le_0_mod_M. apply le_0_2pp. apply lt_plus_M_2p_2w. ring. auto with a. ring.
   cut (p < w). omega. auto with a. apply Zle_ge. auto with a. auto with a. omega. omega. omega. ring. omega. auto with a.
   omega. rewrite H1. apply Zlt_le_trans with M. apply Zmod_lt_z_m. omega. fold c. rewrite c_M. exact le_M_2pp.
-  elim (Zle_or_lt c (_Z d_Si)); intro H2. rewrite ltw_false. simpl. left. rewrite r_Si_eq_b. rewrite H1. fold M.
+  elim (Zle_or_lt c d_Si); intro H2. rewrite ltw_false. simpl. left. rewrite r_Si_eq_b. rewrite H1. fold M.
   rewrite <- Zmod_minus_distr_l. 
   replace ((((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p) mod M + M + ((h mod M + M) * 2 ^ w + (l mod 2 ^ p) mod M) mod 2 ^ p - M)
      with ((((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p) mod M + ((h mod M + M) * 2 ^ w + (l mod 2 ^ p) mod M) mod 2 ^ p).
@@ -401,7 +401,7 @@ Lemma r'_i_eq'_i : _Z r'_i = x mod M \/ _Z r'_i = x mod M + M \/ _Z r'_i = x mod
   apply Zmod_lt_z_m. omega. exact le_M_2pp. apply lt_0_Zpow. auto with a. apply lt_0_Zpow. auto with a. cut (p < w). omega.
   auto with a. apply Zle_ge. auto with a. ring. apply lt_0_Zpow. auto with a. Qed.
 
-Lemma d_Si_small : _Z d_Si < M + M.
+Lemma d_Si_small : d_Si < M + M.
 
   elim d_Si_eq; intro H. apply Zlt_trans with M. rewrite H. apply Zmod_lt_z_m. omega. omega. elim H; intro H0. rewrite H0.
   cut (((h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p) mod M < M). omega. apply Zmod_lt_z_m. omega. elim H0; intro H1.
@@ -478,31 +478,31 @@ Lemma r''0_eq : _Z r''0 = x mod M.
   apply Zmod_le_0_z. omega. apply Zlt_trans with M. apply Zmod_lt_z_m. omega. unfold M. apply lt_z__Z. ring. rewrite H. fold M.
   cut (0 <= x mod M). omega. apply Zmod_le_0_z. omega. Qed.
 
-Lemma r'_small : _Z r'_i < 2 ^ p + M.
+Lemma r'_small : r'_i < 2 ^ p + M.
 
-  unfold r'_i. elim (Zle_or_lt c (_Z d_Si)); intro H. rewrite ltw_false. simpl. rewrite r_Si_eq_lit. rewrite <- Zmod_minus_distr_l.
-  fold M. rewrite modred. cut (_Z d_Si < 2 ^ p + M). cut (l mod 2 ^ p mod M < M). omega. apply Zmod_lt_z_m. omega. 
+  unfold r'_i. elim (Zle_or_lt c d_Si); intro H. rewrite ltw_false. simpl. rewrite r_Si_eq_lit. rewrite <- Zmod_minus_distr_l.
+  fold M. rewrite modred. cut (d_Si < 2 ^ p + M). cut (l mod 2 ^ p mod M < M). omega. apply Zmod_lt_z_m. omega. 
   apply Zlt_le_trans with (M + M). exact d_Si_small. apply Zplus_le_compat. exact le_M_2pp. omega. 
-  cut (0 <= _Z d_Si - M). cut (0 <= (l mod 2 ^ p) mod M). omega. apply Zmod_le_0_z. omega. cut (M <= _Z d_Si). omega. 
-  apply Zle_trans with (2 ^ p). exact le_M_2pp. omega. cut ((l mod 2 ^ p) mod M < M). cut (_Z d_Si < 2 ^ w). omega. apply lt_z__Z.
+  cut (0 <= d_Si - M). cut (0 <= (l mod 2 ^ p) mod M). omega. apply Zmod_le_0_z. omega. cut (M <= d_Si). omega. 
+  apply Zle_trans with (2 ^ p). exact le_M_2pp. omega. cut ((l mod 2 ^ p) mod M < M). cut (d_Si < 2 ^ w). omega. apply lt_z__Z.
   apply Zmod_lt_z_m. omega. exact lt02w. assumption. rewrite ltw_true. rewrite r_Si_eq_lit. rewrite modred.
   apply Zplus_lt_compat. apply Zlt_le_trans with c. assumption. omega. apply Zmod_lt_z_m. omega. apply Zplus_le_0_compat.
   apply le_0__Z. apply Zmod_le_0_z. omega. rewrite Zpow_2_w_is_2Zpow_2_wm1. apply Zlt_le_trans with (c + M). apply Zplus_lt_compat.
   assumption. apply Zmod_lt_z_m. omega. apply Zplus_le_compat. rewrite c_M. apply Zle_pow_le. auto with a. cut (p < w). omega.
   auto with a. omega. assumption. Qed.
 
-Let r'a := ltw r'_i c_in_Z_  r'_i (minusw r'_i M_in_Z_).
+Let r'a := ltw r'_i c_in_Z_ r'_i (minusw r'_i M_in_Z_).
 
-Lemma r'a_small : _Z r'a < 2 ^ p.
+Lemma r'a_small : r'a < 2 ^ p.
 
-  unfold r'a. elim (Zle_or_lt c (_Z r'_i)); intro H. rewrite ltw_false. simpl. fold M. rewrite modred. cut (_Z r'_i < 2 ^ p + M).
-  omega. exact r'_small. cut (M <= _Z r'_i). omega. apply Zle_trans with c. rewrite c_M. exact le_M_2pp. omega. 
-  cut (_Z r'_i < 2 ^ w). cut (0 < M). omega. omega. apply lt_z__Z. assumption. rewrite ltw_true. rewrite <- c_M. assumption. 
+  unfold r'a. elim (Zle_or_lt c r'_i); intro H. rewrite ltw_false. simpl. fold M. rewrite modred. cut (r'_i < 2 ^ p + M).
+  omega. exact r'_small. cut (M <= r'_i). omega. apply Zle_trans with c. rewrite c_M. exact le_M_2pp. omega. 
+  cut (r'_i < 2 ^ w). cut (0 < M). omega. omega. apply lt_z__Z. assumption. rewrite ltw_true. rewrite <- c_M. assumption. 
   assumption. Qed.
 
 Lemma r'a_eq : _Z r'a = x mod M \/ _Z r'a = x mod M + M.
 
-  unfold r'a. elim (Zle_or_lt c (_Z r'_i)); intro H. rewrite ltw_false. elim r'_i_eq'_i; intro H0. rewrite H0 in H. 
+  unfold r'a. elim (Zle_or_lt c r'_i); intro H. rewrite ltw_false. elim r'_i_eq'_i; intro H0. rewrite H0 in H. 
   absurd (c <= x mod M). apply Zlt_not_le. apply Zlt_le_trans with M. apply Zmod_lt_z_m. omega. rewrite c_M. exact le_M_2pp.
   assumption. simpl. fold M. elim H0; intro H1. rewrite H1. replace (x mod M + M - M) with (x mod M). rewrite modred. tauto.
   apply Zmod_le_0_z. omega. apply Zlt_trans with M. apply Zmod_lt_z_m. omega. unfold M. apply lt_z__Z. ring. rewrite H1.
@@ -517,7 +517,7 @@ Lemma r'a_eq : _Z r'a = x mod M \/ _Z r'a = x mod M + M.
   rewrite H3 in p_M. simpl in p_M. rewrite p_M in H2. absurd (0 < 0); omega. intro H2. rewrite c_M. rewrite <- H2. simpl. omega.
   unfold p. apply le_0__Z. omega. assumption. Qed.
 
-Let x' := _Z r'a * 2 ^ w + x_i.
+Let x' := r'a * 2 ^ w + x_i.
 
 Lemma x_i_eq : x_i = x' mod 2 ^ w.
 
@@ -552,7 +552,7 @@ Hint Local Resolve le_0_x' : a.
 Lemma lt_x'_x'max : x' < 2 ^ (p + w).
 
   unfold x'. apply Zle_lt_trans with ((2 ^ p - 1) * 2 ^ w + (2 ^ w - 1)). apply Zplus_le_compat. apply Zmult_le_compat.
-  cut (_Z r'a < 2 ^ p). omega. exact r'a_small. omega. apply le_0__Z. apply Zlt_le_weak. exact lt02w. cut (x_i < 2 ^ w). omega.
+  cut (r'a < 2 ^ p). omega. exact r'a_small. omega. apply le_0__Z. apply Zlt_le_weak. exact lt02w. cut (x_i < 2 ^ w). omega.
   unfold x_i. apply lt_z__Z. rewrite Zmult_minus_distr_r. rewrite <- Zpower_exp. omega. apply Zle_ge. auto with a. apply Zle_ge.
   auto with a. Qed.
 
@@ -565,15 +565,15 @@ Hint Local Resolve lt_x'_x'max le_x'_x'max : a.
 Lemma h'_i_eq_mod : M = 1 \/ _Z h'_i = (x' / 2 ^ p) mod 2 ^ w.
 
   elim t_M; intro Ht. right. unfold h'_i. simpl. fold t. rewrite <- Zmod_plus_distr_l. unfold s''_i. unfold x'. unfold r'a.
-  unfold s_i. elim (Zle_or_lt c (_Z r'_i)); intro H. rewrite ltw_false. rewrite ltw_false. simpl. fold p. fold x_i. fold p.
-  fold M''. fold M. transitivity ((((_Z r'_i - M) mod 2 ^ w * 2 ^ (w - p + p) + x_i) / 2 ^ p) mod 2 ^ w). rewrite Zpower_exp.
+  unfold s_i. elim (Zle_or_lt c r'_i); intro H. rewrite ltw_false. rewrite ltw_false. simpl. fold p. fold x_i. fold p.
+  fold M''. fold M. transitivity ((((r'_i - M) mod 2 ^ w * 2 ^ (w - p + p) + x_i) / 2 ^ p) mod 2 ^ w). rewrite Zpower_exp.
   rewrite Zmult_assoc. rewrite Zdiv_times_plus. rewrite M''_M. rewrite <- Zmod_minus_distr_r. rewrite Zplus_comm.
   rewrite Zmod_plus_distr_l with (b := x_i / 2 ^ p). rewrite <- Zmod_mult_distr_l. rewrite <- Zmod_plus_distr_l.
   rewrite <- Zmod_plus_distr_l. rewrite Zmult_minus_distr_r. rewrite Ht. apply f_equal2 with (f := Zmod). ring. trivial.
   exact lt02w. exact lt02w. exact lt02w. exact lt02w. exact lt02w. apply lt_0_Zpow. auto with a. cut (p < w). omega. auto with a.
   apply Zle_ge. auto with a. replace (w - p + p) with w. trivial. ring. assumption. assumption. rewrite ltw_true. rewrite ltw_true.
   rewrite Zmult_comm. (* replace w with (w - p + p). *)  (* Does not work... *)
-  transitivity (((_Z r'_i * 2 ^ (w - p + p) + x_i) / 2 ^ p) mod 2 ^ w). (* ... *)
+  transitivity (((r'_i * 2 ^ (w - p + p) + x_i) / 2 ^ p) mod 2 ^ w). (* ... *)
   rewrite Zpower_exp. rewrite Zmult_assoc. rewrite Zdiv_times_plus. rewrite Ht. simpl. fold x_i. fold p. trivial. apply lt_0_Zpow.
   auto with a. cut (p < w). omega. auto with a. apply Zle_ge. auto with a. replace (w - p + p) with w. trivial. ring. assumption.
   assumption. auto with a. tauto. Qed.
@@ -682,7 +682,7 @@ Lemma rrr_i_eq : _Z rrr_i = (_Z d_i + x' mod 2 ^ p) mod 2 ^ w.
 Lemma l'_i_eq : _Z l'_i = x' mod 2 ^ p.
 
   unfold l'_i. rewrite Z_from_minusw. fold x_i. rewrite s'_i_eq. unfold x'. rewrite Zmod_km_plus. rewrite modred with (x := x_i).
-  replace (x_i - (x_i - (_Z r'a * 2 ^ w + x_i) mod 2 ^ p)) with ((_Z r'a * 2 ^ w + x_i) mod 2 ^ p). apply modred.
+  replace (x_i - (x_i - (r'a * 2 ^ w + x_i) mod 2 ^ p)) with ((r'a * 2 ^ w + x_i) mod 2 ^ p). apply modred.
   apply Zmod_le_0_z. apply lt_0_Zpow. auto with a. apply Zlt_le_trans with (2 ^ p). apply Zmod_lt_z_m. apply lt_0_Zpow. 
   auto with a. apply Zle_pow_le. auto with a. cut (p < w). omega. auto with a. ring. unfold x_i. apply le_0__Z. unfold x_i.
   apply lt_z__Z. auto with a. Qed.
@@ -755,7 +755,7 @@ Fixpoint foldlz (f : Z_ (2 ^ w) * Z_ (2 ^ w) -> Z_ (2 ^ w) -> Z_ (2 ^ w) * Z_ (2
   end.
 
 Lemma P'f' : forall (d r : Z_ (2 ^ w)) (h : Z) (l x_i : Z_ (2 ^ w)),
-  P' M p d r h l -> P' M p (fst (f' (d, r) x_i)) (snd (f' (d, r) x_i)) (h * 2 ^ w + _Z l) x_i.
+  P' M p d r h l -> P' M p (fst (f' (d, r) x_i)) (snd (f' (d, r) x_i)) (h * 2 ^ w + l) x_i.
 
   intros d r  h l x_i H. unfold f'. unfold M. unfold p. unfold p_in_Z_w. simpl. 
   apply d_i_r_i_eq; fold p_in_Z_w; fold M; fold p. assumption. omega. assumption. 
@@ -843,20 +843,20 @@ Lemma Q_lem : forall (n : nat),
 
 End repeat.
 
-Lemma cex : forall M : Mset, in_Z_ (2 ^ w) (2 ^ Zlog_sup (Z_from_Mset M)).
+Lemma cex : forall M : Mset, in_Z_ (2 ^ w) (2 ^ Zlog_sup M).
 
-  intro M. unfold in_Z_. split. cut (0 < 2 ^ Zlog_sup (Z_from_Mset M)). omega. apply lt_0_Zpow. apply Zle_trans with (Zlog_sup 1).
+  intro M. unfold in_Z_. split. cut (0 < 2 ^ Zlog_sup M). omega. apply lt_0_Zpow. apply Zle_trans with (Zlog_sup 1).
   simpl. omega. apply Zlog_sup_seq. apply Mset_l. apply Zlt_pow_lt. apply Zlog_sup_correct1. case M. unfold in_Mset. simpl. 
   intros. omega. apply Zle_lt_trans with (Zlog_sup (2 ^ (w - 1))). apply Zlog_sup_seq. case M. unfold in_Mset. simpl. intros.
   omega. rewrite Zlog_sup_pow. omega. cut (0 < w). omega. exact lt_0_w. Qed.
 
-Lemma M''ex : forall M : Mset, in_Z_ (2 ^ w) (2 ^ (w - Zlog_sup (Z_from_Mset M) - 1 / Z_from_Mset M) * Z_from_Mset M mod 2 ^ w).
+Lemma M''ex : forall M : Mset, in_Z_ (2 ^ w) (2 ^ (w - Zlog_sup M - 1 / M) * M mod 2 ^ w).
 
   intro M. apply xlex. Qed.
 
 Lemma M'mod : forall M : Mset,
-   2 ^ (Zlog_sup (Z_from_Mset M) + w) / Z_from_Mset M - 2 ^ w =
-  (2 ^ (Zlog_sup (Z_from_Mset M) + w) / Z_from_Mset M) mod 2 ^ w.
+   2 ^ (Zlog_sup M + w) / M - 2 ^ w =
+  (2 ^ (Zlog_sup M + w) / M) mod 2 ^ w.
 
   intro M. rewrite <- Zmod_minus_m. symmetry. apply modred; elim (M'ex M); tauto. exact lt02w. Qed.
 
@@ -868,22 +868,22 @@ Definition r_n := zero_in_Z_.
 
 Definition MultiRed (M : Z_ (2 ^ w)) (ptM'cM'' : Z_ w * Z_ w * Z_ (2 ^ w) * Z_ (2 ^ w) * Z_ (2 ^ w))
                     (n : nat) (x : Z_ (2 ^ (Z_of_nat n * w))) :=
-  g' M (foldlz (_Z x) (f' M ptM'cM'') (d_n, r_n) n).
+  g' M (foldlz x (f' M ptM'cM'') (d_n, r_n) n).
 
 (* <KE EP TOGETHER - C'def *)
 Definition C' (M : Mset) :=
-      (      C M,
-        ex2w (2 ^ Zlog_sup (Z_from_Mset M))                                                     (cex M),
-        ex2w (2 ^ (w - Zlog_sup (Z_from_Mset M) - 1 / Z_from_Mset M) * Z_from_Mset M mod 2 ^ w) (M''ex M)).
+      ( C M,
+        exist (in_Z_ (2 ^ w)) (2 ^ Zlog_sup M)                             (cex M),
+        exist (in_Z_ (2 ^ w)) (2 ^ (w - Zlog_sup M - 1 / M) * M mod 2 ^ w) (M''ex M)).
 (* KE EP TOGETHER> *)
 
 (* <KE EP TOGETHER - multired_equality *)
 Theorem MultiRed_eq : forall (M : Mset) (n : nat) (x : Z_ (2 ^ (Z_of_nat n * w))),
-  _Z (MultiRed (Z__from_Mset M) (C' M) n x) = _Z x mod Z_from_Mset M.
+  _Z (MultiRed M (C' M) n x) = x mod M.
 (* KE EP TOGETHER> *)
 
   intros M n x. unfold MultiRed. unfold d_n. unfold r_n. unfold g'. rewrite Q_lem; unfold C'; simpl. trivial. apply Mset_l.
-  apply Mset_r. trivial. elim (Zle_lt_or_eq 1 (Z_from_Mset M)). intro H. left. rewrite Zdiv_small_0. ring. omega. assumption.
+  apply Mset_r. trivial. elim (Zle_lt_or_eq 1 M). intro H. left. rewrite Zdiv_small_0. ring. omega. assumption.
   intro H. rewrite H. tauto. apply Mset_l. trivial. trivial. apply M'mod; assumption. apply le_0__Z. apply lt_z__Z. Qed.
 
 Close Scope Z_scope.
