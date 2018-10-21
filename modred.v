@@ -82,14 +82,14 @@ Lemma le02w : 0 <= 2 ^ w.
 
   apply Zlt_le_weak. exact lt02w. Qed.
 
-Hint Local Resolve le_0_w lt02w le02w : a.
-Hint Local Resolve le_0_p le_0_l lt_l_2w le_0_v lt_v_2w : a.
+Local Hint Resolve le_0_w lt02w le02w : a.
+Local Hint Resolve le_0_p le_0_l lt_l_2w le_0_v lt_v_2w : a.
 
 Lemma le_0_x : 0 <= x.
 
   unfold x. fold (0 + 0). apply Zplus_le_compat; auto with a. apply Zmult_le_0_compat; auto with a. Qed.
 
-Hint Local Resolve le_0_x : a.
+Local Hint Resolve le_0_x : a.
 
 (* <KEEP TOGETHER - modred_equations *)
 Let s := ursh u_in_Z_ p_in_Z_w.
@@ -141,7 +141,7 @@ Lemma lt_0_2pp : 0 < 2 ^ p.
 
   apply lt_0_Zpow. auto with a. Qed.
 
-Hint Local Resolve lt_0_2pp : a.
+Local Hint Resolve lt_0_2pp : a.
 
 Lemma lt_x_xmax : x < 2 ^ (p + w).
 
@@ -154,13 +154,13 @@ Lemma le_x_xmax : x <= 2 ^ (p + w) - 1.
 
   cut (x < 2 ^ (p + w)). omega. exact lt_x_xmax. Qed.
 
-Hint Local Resolve lt_x_xmax le_x_xmax : a.
+Local Hint Resolve lt_x_xmax le_x_xmax : a.
 
 Lemma le_0_wm1 : 0 <= w - 1.
 
   cut (0 < w). omega. exact lt_0_w. Qed.
 
-Hint Local Resolve le_0_wm1 lt_0_w : a.
+Local Hint Resolve le_0_wm1 lt_0_w : a.
 
 Lemma lt_p_w : p < w.
 
@@ -175,7 +175,7 @@ Lemma le_0_wmp : 0 <= w - p.
 
   cut (p <= w). omega. exact le_p_w. Qed.
 
-Hint Local Resolve lt_p_w le_p_w le_0_wmp : a.
+Local Hint Resolve lt_p_w le_p_w le_0_wmp : a.
 
 (* <KEEP TOGETHER - s'_eq *)
 Lemma s'_eq : _Z s' = x mod 2 ^ w - x mod 2 ^ p.
@@ -243,7 +243,7 @@ Lemma le_0_pm1 : 0 <= p - 1 \/ M = 1.
 
   elim lt_0_p; intro H; omega. Qed.
 
-Hint Local Resolve le_M_2pp le_1_p lt_0_p le_0_pm1 : a.
+Local Hint Resolve le_M_2pp le_1_p lt_0_p le_0_pm1 : a.
 
 Lemma lt_2pm1_M : 2 ^ (p - 1) < M \/ M = 1.
 
@@ -251,7 +251,7 @@ Lemma lt_2pm1_M : 2 ^ (p - 1) < M \/ M = 1.
   intros q0 H0. elim (Zlog_sup_correct2 (Zpos q0)). omega. omega. intros q0 H0. absurd (1 <= Zneg q0). 
   apply Zlt_not_le. unfold Zlt. trivial. assumption. omega. assumption. Qed.
 
-Hint Local Resolve lt_2pm1_M : a.
+Local Hint Resolve lt_2pm1_M : a.
 
 Lemma div_M_1 : 2 ^ p / M = 1.
 
