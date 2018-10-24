@@ -838,7 +838,7 @@ Lemma Q_lem : forall (n : nat),
   intro H1. rewrite r''0_eq with (M_in_Z_ := M_in_Z_) (ptM'cM'' := ptM'cM'') (d_Sir_Si := foldlz f' (zero_in_Z_, zero_in_Z_) n)
     (l_in_Z_ := x_ 0) (h := x / 2 ^ w). simpl. replace (x / 1) with ((x * 1 + 0) / 1).
   rewrite Zdiv_mult_plus. rewrite Zmult_comm. rewrite <- Z_div_mod_eq. trivial. apply Zlt_gt. exact lt02w. omega. omega. omega.
-  apply f_equal2 with (f := Zdiv); ring. trivial. fold M. omega. trivial. trivial. assumption.
+  apply f_equal2 with (f := Zdiv); ring. trivial. trivial. fold M. omega. trivial. trivial. assumption.
   apply P_all; assumption. Qed.
 
 End repeat.
