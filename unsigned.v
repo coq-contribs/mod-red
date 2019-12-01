@@ -43,7 +43,7 @@ Definition w_def : Zpls.
 
   exact in_Zpls_64. Qed.
 *)
-Variable w_def : Zpls.
+Local Parameter w_def : Zpls.
 
 Definition w := proj1_sig w_def.
 
