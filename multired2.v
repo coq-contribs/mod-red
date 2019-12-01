@@ -205,12 +205,14 @@ Local Hint Resolve lt_0_2pp : a.
 
 Lemma le_0_wm1 : 0 <= w - 1.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   cut (0 < w). omega. exact lt_0_w. Qed.
 
 Local Hint Resolve le_0_wm1 lt_0_w : a.
 
 Lemma lt_p_w : p < w.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   rewrite p_M. apply Zle_lt_trans with (w - 1). rewrite <- Zlog_sup_pow. apply Zlog_sup_seq.
   assumption. auto with a. omega. Qed.
 
@@ -412,6 +414,7 @@ Lemma r'0_eq_1 :
   _Z r'0 = ((h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + l mod 2 ^ p mod M) mod 2 ^ w \/
   _Z r'0 = (((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + l mod 2 ^ p mod M) mod 2 ^ w.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   unfold r'0. elim d_Si_eq; intro H. left. rewrite ltw_true. unfold r0. rewrite r_Si_eq_lit. rewrite H. trivial. unfold d0.
   rewrite H. fold M. apply Zmod_lt_z_m. omega. elim H; intro H0. left. rewrite ltw_false. simpl. unfold r0. rewrite r_Si_eq_lit.
   rewrite <- Zmod_minus_distr_l. fold M. rewrite H0. apply f_equal2 with (f := Zmod). ring. trivial. auto with a. fold M.
@@ -425,6 +428,7 @@ Lemma r'0_eq_2 :
   _Z r'0 = (h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + l mod 2 ^ p mod M \/
   _Z r'0 = ((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + l mod 2 ^ p mod M.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   elim r'0_eq_1; intro H; rewrite H. left. apply modred. apply Zplus_le_0_compat. apply Zmod_le_0_z. omega. apply Zmod_le_0_z.
   omega. rewrite Zpow_2_w_is_2Zpow_2_wm1. apply Zplus_lt_compat. apply Zlt_le_trans with M. apply Zmod_lt_z_m. omega. assumption.
   apply Zlt_le_trans with M. apply Zmod_lt_z_m. omega. assumption. right. apply modred. apply Zplus_le_0_compat. apply Zmod_le_0_z.
@@ -433,12 +437,14 @@ Lemma r'0_eq_2 :
 
 Lemma r'0_eq_5 : forall b : Z, ((b mod M + M) * 2 ^ w + l) mod M = (b * 2 ^ w + l) mod M.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   intro b. rewrite Zmod_plus_distr_l. rewrite Zmod_mult_distr_l. replace (b mod M + M) with (b mod M + 1 * M). rewrite Z_mod_plus.
   rewrite modred with (x := b mod M). rewrite <- Zmod_mult_distr_l. rewrite <- Zmod_plus_distr_l. trivial. omega. omega.
   apply Zmod_le_0_z. omega. apply Zmod_lt_z_m. omega. omega. ring. omega. omega. Qed.
 
 Lemma r'0_eq_6 : forall b : Z, (b * 2 ^ w + l) mod 2 ^ p = l mod 2 ^ p.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   intro b. replace w with (w - p + p). rewrite Zpower_exp. rewrite Zmult_assoc. rewrite Zplus_comm. rewrite Z_mod_plus. trivial.
   apply Zlt_gt. apply lt_0_Zpow. auto with a. cut (p <= w). omega. auto with a. apply Zle_ge. auto with a. ring. Qed.
 
@@ -446,12 +452,14 @@ Lemma r'0_eq_7 :
   _Z r'0 = (h mod M * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + (h mod M * 2 ^ w + l) mod 2 ^ p mod M \/
   _Z r'0 = ((h mod M + M) * 2 ^ w + l) / 2 ^ p * 2 ^ p mod M + ((h mod M + M) * 2 ^ w + l) mod 2 ^ p mod M.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   elim r'0_eq_2; intro H; rewrite H. left. apply f_equal2 with (f := Zplus). trivial. symmetry. apply f_equal2 with (f := Zmod).
   apply r'0_eq_6. trivial. right. apply f_equal2 with (f := Zplus). trivial. symmetry. apply f_equal2 with (f := Zmod).
   apply r'0_eq_6. trivial. Qed.
 
 Lemma r'0_eq_8 : forall a b : Z, a = b / 2 ^ p * 2 ^ p mod M + b mod 2 ^ p mod M -> a = b mod M \/ a = b mod M + M.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   intros a b H. elim (mod_plus (b / 2 ^ p * 2 ^ p) (b mod 2 ^ p) M). intro H0. left. rewrite H. rewrite H0. rewrite Zdivmod_split.
   trivial. apply lt_0_Zpow. auto with a. intro H0. right. rewrite H. rewrite H0. rewrite Zdivmod_split. trivial. apply lt_0_Zpow.
   auto with a. omega. Qed.
@@ -460,10 +468,12 @@ Lemma r'0_eq_9 :
   (_Z r'0 = (h mod M * 2 ^ w + l) mod M \/ _Z r'0 = (h mod M * 2 ^ w + l) mod M + M) \/
   (_Z r'0 = ((h mod M + M) * 2 ^ w + l) mod M \/ _Z r'0 = ((h mod M + M) * 2 ^ w + l) mod M + M).
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   elim r'0_eq_7; intro H; rewrite H. left. apply r'0_eq_8. trivial. right. apply r'0_eq_8. trivial. Qed.
 
 Lemma r'0_eq : _Z r'0 = x mod M \/ _Z r'0 = x mod M + M.
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   elim r'0_eq_9; intro H. elim H; intro H0; rewrite H0. left. rewrite Zmod_plus_distr_l. rewrite <- Zmod_mult_distr_l. 
   rewrite <- Zmod_plus_distr_l. trivial. omega. omega. omega. right. rewrite Zmod_plus_distr_l. rewrite <- Zmod_mult_distr_l.
   rewrite <- Zmod_plus_distr_l. trivial. omega. omega. omega. elim H; intro H0; rewrite H0. left. rewrite r'0_eq_5. trivial.
@@ -473,6 +483,7 @@ Lemma r'0_eq : _Z r'0 = x mod M \/ _Z r'0 = x mod M + M.
 Lemma r''0_eq : _Z r''0 = x mod M.
 (* KE EP TOGETHER> *)
 
+  clear x_i_in_Z_ x_i s_i s'_i l'_i s''_i h'_i q_i q'_i y_i h'_i'.
   unfold r''0. unfold r''0. (* Proof General beta oddity *) elim r'0_eq; intro H. rewrite ltw_true. trivial. rewrite H. apply Zmod_lt_z_m. fold M. omega. rewrite ltw_false.
   simpl. rewrite H. fold M. replace (x mod M + M - M) with (x mod M). apply modred.
   apply Zmod_le_0_z. omega. apply Zlt_trans with M. apply Zmod_lt_z_m. omega. unfold M. apply lt_z__Z. ring. rewrite H. fold M.
