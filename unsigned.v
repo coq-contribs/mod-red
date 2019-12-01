@@ -89,8 +89,8 @@ Lemma mod_in_Z__ : forall z : Z, in_Z_ (2 ^ w) (z mod 2 ^ w).
 Lemma is_in_Z_R_ursh : forall (x : Z_ (2 ^ w)) (i : Z_ w), in_Z_ (2 ^ w) (x / 2 ^ i).
 
   intros x i. unfold in_Z_. split. apply Zle_0_div. apply le_0__Z. apply lt_0_Zpow. apply le_0__Z. 
-  apply Zle_lt_trans with ((2 ^ w - 1) / 2 ^ i). apply Zdiv_le. apply lt_0_Zpow. apply le_0__Z. 
-  cut (x < 2 ^ w). omega. apply lt_z__Z. apply Zle_lt_trans with ((2 ^ w - 1) / 2 ^ 0). 
+  apply Z.le_lt_trans with ((2 ^ w - 1) / 2 ^ i). apply Zdiv_le. apply lt_0_Zpow. apply le_0__Z. 
+  cut (x < 2 ^ w). omega. apply lt_z__Z. apply Z.le_lt_trans with ((2 ^ w - 1) / 2 ^ 0). 
   apply Zdiv_den_le. cut (0 < 2 ^ w). omega. exact lt02w. replace (2 ^ 0) with 1. omega. trivial. 
   apply Zle_pow_le. omega. apply le_0__Z. replace (2 ^ 0) with 1.
   replace (2 ^ w - 1) with ((2 ^ w - 1) * 1). rewrite Z_div_mult. omega. omega. ring. trivial. Qed.
@@ -98,9 +98,9 @@ Lemma is_in_Z_R_ursh : forall (x : Z_ (2 ^ w)) (i : Z_ w), in_Z_ (2 ^ w) (x / 2 
 Lemma is_in_Z_R_uhwm : forall x y : Z_ (2 ^ w), in_Z_ (2 ^ w) (x * y / 2 ^ w).
 
   intros x y. unfold in_Z_. split. apply Zle_0_div. apply Zmult_le_0_compat; apply le_0__Z. 
-  exact lt02w. apply Zle_lt_trans with (x * 2 ^ w / 2 ^ w). apply Zdiv_le. exact lt02w.
+  exact lt02w. apply Z.le_lt_trans with (x * 2 ^ w / 2 ^ w). apply Zdiv_le. exact lt02w.
   apply Zmult_le_compat_l. apply Zlt_le_weak. apply lt_z__Z. apply le_0__Z. rewrite Z_div_mult.
-  apply lt_z__Z. apply Zlt_gt. exact lt02w. Qed.
+  apply lt_z__Z. apply Z.lt_gt. exact lt02w. Qed.
 
 (* <KEEP TOGETHER - plusminustimesuhwm *)
 Definition plusw (x y : Z_ (2 ^ w)) :=
@@ -154,12 +154,12 @@ Lemma uhwm_eq : forall x y : Z_ (2 ^ w), _Z (uhwm x y) = (x * y) / 2 ^ w.
 Lemma ltw_true : forall x y t e : Z_ (2 ^ w), x < y -> ltw x y t e = t.
 
 
-  unfold ltw. unfold Zlt_bool. unfold Zlt. intros x y t e H. rewrite H.
+  unfold ltw. unfold Zlt_bool. unfold Z.lt. intros x y t e H. rewrite H.
   trivial. Qed.
 
 Lemma ltw_false : forall x y t e : Z_ (2 ^ w), y <= x -> ltw x y t e = e.
 
-  intros x y t e H. unfold ltw. unfold Zlt_bool. cut (x >= y). unfold Zge.
+  intros x y t e H. unfold ltw. unfold Zlt_bool. cut (x >= y). unfold Z.ge.
   case (x ?= y). trivial. intro H0. absurd (Lt <> Lt). auto. assumption.
   trivial. omega. Qed.
 
