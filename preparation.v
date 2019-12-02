@@ -60,16 +60,16 @@ Lemma Zdiv_small_0 : forall x m : Z, 0 <= x -> x < m -> x / m = 0.
   intro H2. elim (Zle_or_lt 0 (x / m)); intro H3. elim (Zle_lt_or_eq 0 (x / m)). intro H4.
   cut (m * 1 <= m * (x / m)). intro H5. absurd (m * (x / m) < m). omega. assumption.
   apply Zmult_le_compat_l. omega. omega. omega. assumption. absurd (x / m < 0). apply Zle_not_lt. 
-  apply Zge_le. apply Z_div_ge0; omega. assumption. cut (0 <= x mod m). omega. elim (Z_mod_lt x m). omega. 
+  apply Z.ge_le. apply Z_div_ge0; omega. assumption. cut (0 <= x mod m). omega. elim (Z_mod_lt x m). omega. 
   omega. rewrite <- Z_div_mod_eq. assumption. omega. Qed.
 
 Lemma Zle_0_div : forall a m : Z, 0 <= a -> 0 < m -> 0 <= a / m.
 
-  intros a m H H0. apply Zge_le. apply Z_div_ge0. omega. omega. Qed.
+  intros a m H H0. apply Z.ge_le. apply Z_div_ge0. omega. omega. Qed.
 
 Lemma Zdiv_le : forall a b m : Z, 0 < m -> a <= b -> a / m <= b / m.
 
-  intros. apply Zge_le. apply Z_div_ge. omega. omega. Qed.
+  intros. apply Z.ge_le. apply Z_div_ge. omega. omega. Qed.
 
 Lemma Zmod_plus_m : forall x m : Z, 0 < m -> (x + m) mod m = x mod m.
 
@@ -168,10 +168,10 @@ Definition If (T : Set) (b : bool) (t e : T) :=
 Set Strict Implicit.
 Unset Implicit Arguments.
 
-Lemma Z_to_inject_nat : forall x : Z, 0 <= x -> Z_of_nat (Zabs_nat x) = x.
+Lemma Z_to_inject_nat : forall x : Z, 0 <= x -> Z_of_nat (Z.abs_nat x) = x.
 
   simple destruct x. simpl. omega. intros. simpl. symmetry. 
-  apply Zpos_eq_Z_of_nat_o_nat_of_P. intros p H. absurd (0 <= Zneg p). unfold Zle. tauto. 
+  apply Zpos_eq_Z_of_nat_o_nat_of_P. intros p H. absurd (0 <= Zneg p). unfold Z.le. tauto. 
   assumption. Qed.
 
 Lemma Zlt_0_power_nat : forall i : nat, 0 < Zpower_nat 2 i.
@@ -187,7 +187,7 @@ Lemma Zpower_nat_Zpower : forall i : nat, Zpower_nat 2 i = 2 ^ Z_of_nat i.
   rewrite Zpower_exp. replace (2 ^ 1) with 2. trivial. trivial. omega. omega. rewrite inj_S.
   omega. Qed.
 
-Lemma Zpower_Zpower_nat : forall i : Z, 0 <= i -> 2 ^ i = Zpower_nat 2 (Zabs_nat i).
+Lemma Zpower_Zpower_nat : forall i : Z, 0 <= i -> 2 ^ i = Zpower_nat 2 (Z.abs_nat i).
 
   intros i H. rewrite Zpower_nat_Zpower. rewrite Z_to_inject_nat. trivial. assumption. Qed.
 
@@ -199,7 +199,7 @@ Lemma Zlt_pow_lt :
   forall i j : Z, 0 <= i -> i < j -> 2 ^ i < 2 ^ j.
 
   intros i j Hi Hij. replace j with (i + (j - i)). rewrite Zpower_exp. 
-  apply Zle_lt_trans with (2 ^ i * 2 ^ 0). simpl. omega. apply Zmult_lt_compat_l. apply lt_0_Zpow.
+  apply Z.le_lt_trans with (2 ^ i * 2 ^ 0). simpl. omega. apply Zmult_lt_compat_l. apply lt_0_Zpow.
   assumption. replace (j - i) with (j - i - 1 + 1).  rewrite Zpower_exp. replace (2 ^ 1) with 2.
   replace (2 ^ 0) with 1. cut (0 < 2 ^ (j - i - 1)). omega. apply lt_0_Zpow. omega. trivial. trivial. 
   omega. omega.  ring. omega. omega. ring. Qed.
@@ -225,7 +225,7 @@ Definition Zlog_sup (M : Z) :=
 
 Lemma Zlog_sup_pow : forall i : Z, 0 <= i -> Zlog_sup (2 ^ i) = i.
 
-  intros i H. replace (2 ^ i) with (Zpos (shift_nat (Zabs_nat i) 1)). simpl. rewrite log_sup_shift_nat.
+  intros i H. replace (2 ^ i) with (Zpos (shift_nat (Z.abs_nat i) 1)). simpl. rewrite log_sup_shift_nat.
   apply Z_to_inject_nat. assumption. rewrite shift_nat_correct. rewrite Zpower_nat_Zpower. 
   rewrite Z_to_inject_nat. ring. assumption. Qed.
 
@@ -242,7 +242,7 @@ Lemma Zlog_sup_correct2 : forall z : Z, 0 < z -> 2 ^ (Zlog_sup z - 1) < z <= 2 ^
 
   intros z H. elim (Zle_or_lt z 1). intro Hz. cut (z = 1). intro H0. rewrite H0. simpl. omega. omega.
   case z. intro. absurd (1 < 0); omega. simpl. intros p H0. rewrite <- two_p_pow. rewrite <- two_p_pow. 
-  replace (log_sup p - 1) with (Zpred (log_sup p)). apply log_sup_correct2. unfold Zpred. ring. apply log_sup_correct1.
+  replace (log_sup p - 1) with (Z.pred (log_sup p)). apply log_sup_correct2. unfold Z.pred. ring. apply log_sup_correct1.
   generalize H0. case p. simpl. intros q H1. cut (0 <= log_inf q). omega. apply log_inf_correct1. simpl.
   intros q H1. cut (0 <= log_sup q). omega. apply log_sup_correct1. intro. absurd (1 < 1); omega.
   intros p H0. absurd (1 < Zneg p). simplify_eq. assumption. Qed.
@@ -266,12 +266,12 @@ Lemma Zlog_sup_seq : forall p q : Z, p <= q -> Zlog_sup p <= Zlog_sup q.
 
   intros p q H. elim (Zle_or_lt p 0). intro Hp. replace (Zlog_sup p) with 0. elim (Zle_or_lt q 0).
   intro Hq. replace (Zlog_sup q) with 0. omega. generalize Hq. elim q. trivial. intros r Hr.
-  absurd (Zpos r <= 0). apply Zlt_not_le. unfold Zlt. trivial. assumption. intros r Hr. trivial.
+  absurd (Zpos r <= 0). apply Zlt_not_le. unfold Z.lt. trivial. assumption. intros r Hr. trivial.
   apply Zlog_sup_correct1. generalize Hp. elim p. trivial. intros r Hr. absurd (Zpos r <= 0).
-  apply Zlt_not_le. unfold Zlt. trivial. assumption. intros r Hr. trivial. intro H0.
+  apply Zlt_not_le. unfold Z.lt. trivial. assumption. intros r Hr. trivial. intro H0.
   elim (Zle_or_lt (Zlog_sup p) (Zlog_sup q)); intro H1. assumption. cut (Zlog_sup q <= Zlog_sup p - 1). 
   intro H2. cut (2 ^ Zlog_sup q <= 2 ^ (Zlog_sup p - 1)). intro H3. absurd (p <= q). apply Zlt_not_le. 
-  apply Zle_lt_trans with (2 ^ Zlog_sup q). elim (Zlog_sup_correct2 q). omega. omega. 
+  apply Z.le_lt_trans with (2 ^ Zlog_sup q). elim (Zlog_sup_correct2 q). omega. omega. 
   elim (Zlog_sup_correct2 p). omega. assumption. assumption. apply Zle_pow_le. apply Zlog_sup_correct1.
   omega. assumption. omega. Qed.
   
@@ -286,7 +286,7 @@ Lemma Zdivdivdiv : forall x y z : Z, 0 < y -> 0 < z -> x / y / z = x / (y * z).
    ((x / (y * z) * z * y + x mod (y * z)) / y / z).
   rewrite Zdiv_times_plus. rewrite Zdiv_times_plus. rewrite Zplus_comm. rewrite Zdiv_small_0. ring.
   apply Zle_0_div. apply Zmod_le_0_z. apply Zmult_lt_0_compat; assumption. assumption.
-  apply Zle_lt_trans with ((y * z - 1) / y). apply Zdiv_le. assumption. cut (x mod (y * z) < y * z).
+  apply Z.le_lt_trans with ((y * z - 1) / y). apply Zdiv_le. assumption. cut (x mod (y * z) < y * z).
   omega. apply Zmod_lt_z_m. apply Zmult_lt_0_compat; omega. rewrite Zmult_comm. rewrite Zdiv_mult_minus;
   omega. assumption. assumption. rewrite Zmult_comm with (n := y). rewrite <- Zmult_assoc.
   rewrite Zdivmod_split. trivial. apply Zmult_lt_0_compat; assumption. Qed.
@@ -313,16 +313,16 @@ Lemma approx_cz : forall c y z : Z, 0 < c -> 0 < y -> 0 <= z -> z <= c ->
   rewrite Zmult_assoc. rewrite Zdiv_a_b_b_Zmod. rewrite Zmult_minus_distr_r.
   replace (z * c - z mod y * c - (c * z - c mod y * z - (c / y * z) mod c * y))
      with (c mod y * z + (c / y * z) mod c * y - z mod y * c).
-  apply Zle_trans with ((c mod y * z + c * y) / (c * y)). apply Zdiv_le. apply Zmult_lt_0_compat;
-  assumption. apply Zle_trans with (c mod y * z + (c / y * z) mod c * y). cut (0 <= z mod y * c). omega.
+  apply Z.le_trans with ((c mod y * z + c * y) / (c * y)). apply Zdiv_le. apply Zmult_lt_0_compat;
+  assumption. apply Z.le_trans with (c mod y * z + (c / y * z) mod c * y). cut (0 <= z mod y * c). omega.
   apply Zmult_le_0_compat. apply Zmod_le_0_z. assumption. omega. apply Zplus_le_compat. omega.
   apply Zmult_le_compat_r. apply Zlt_le_weak. apply Zmod_lt_z_m. assumption. omega.
   replace (c mod y * z + c * y) with (1 * (c * y) + c mod y * z).
   rewrite Zdiv_times_plus. cut (c mod y * z / (c * y) <= 0). omega.
-  apply Zle_trans with ((y - 1) * z / (c * y)). apply Zdiv_le. apply Zmult_lt_0_compat; assumption. 
+  apply Z.le_trans with ((y - 1) * z / (c * y)). apply Zdiv_le. apply Zmult_lt_0_compat; assumption. 
   apply Zmult_le_compat_r. cut (c mod y < y). omega. apply Zmod_lt_z_m. 
   assumption. omega. rewrite Zdiv_small_0. omega. apply Zmult_le_0_compat; omega. 
-  rewrite Zmult_comm with (n := c). elim (Zle_lt_or_eq 0 z). intro H. apply Zlt_le_trans with (y * z). 
+  rewrite Zmult_comm with (n := c). elim (Zle_lt_or_eq 0 z). intro H. apply Z.lt_le_trans with (y * z). 
   apply Zmult_lt_compat_r. assumption. omega. apply Zmult_le_compat_l; omega. intro H. rewrite <- H. 
   replace ((y - 1) * 0) with 0. apply Zmult_lt_0_compat; assumption. ring. assumption. 
   apply Zmult_lt_0_compat; assumption. ring. ring. assumption. assumption. assumption. 
@@ -335,7 +335,7 @@ Lemma approx_le1 : forall a b y x : Z, 0 < a -> 0 < b -> 0 < y -> 0 <= x -> x < 
   rewrite <- Zdiv_simpl with (y := b) (z := a). rewrite <- Zmult_assoc. rewrite Zmult_comm with (n := b).
   apply approx_cz. apply Zmult_lt_0_compat; assumption. assumption. apply Zmult_le_0_compat.
   apply Zle_0_div; assumption. omega. rewrite Zmult_comm with (m := b). apply Zmult_le_compat_r.
-  apply Zle_trans with ((b * a + (a - 1)) / a). apply Zdiv_le. assumption. rewrite Zmult_comm. omega.
+  apply Z.le_trans with ((b * a + (a - 1)) / a). apply Zdiv_le. assumption. rewrite Zmult_comm. omega.
   rewrite Zdiv_mult_plus; omega. omega. assumption. assumption. Qed.
 
 Lemma approx_m1_one : forall a b y x : Z, 0 < a -> 0 < b -> 0 < y -> 0 <= x -> x < a * b + a ->
@@ -348,7 +348,7 @@ Lemma approx_cz0 : forall c y z : Z, 0 < c -> 0 < y -> 0 <= z ->
   c / y * z / c <= z / y.
 
   intros c y z Hc Hy Hz. rewrite <- Zdiv_simpl with (z := y). replace (c / y * z * y) with (c / y * y * z).
-  apply Zle_trans with (c * z / (c * y)). apply Zdiv_le. apply Zmult_lt_0_compat; assumption.
+  apply Z.le_trans with (c * z / (c * y)). apply Zdiv_le. apply Zmult_lt_0_compat; assumption.
   apply Zmult_le_compat_r. rewrite Zmult_comm. apply Z_mult_div_ge. omega. assumption. 
   do 2 rewrite Zmult_comm with (n := c). rewrite Zdiv_simpl. omega. assumption. assumption. ring.
   assumption. assumption. Qed.
@@ -365,21 +365,21 @@ Lemma approx_m1_two : forall y a b x : Z, 0 < y -> 0 < a -> a <= y -> 0 < b -> 0
 
   intros y a b x lt_0_y lt_0_a le_a_y lt_0_b le_0_x. replace (x / y) with ((a * (x / a) + x mod a) / y).
   unfold Zminus. rewrite <- Z_div_plus. apply Zdiv_le. assumption. rewrite Zmult_comm.
-  cut (x mod a <= 1 * y). omega. apply Zle_trans with a. apply Zlt_le_weak. apply Zmod_lt_z_m. assumption.
+  cut (x mod a <= 1 * y). omega. apply Z.le_trans with a. apply Zlt_le_weak. apply Zmod_lt_z_m. assumption.
   omega. omega. rewrite <- Z_div_mod_eq. trivial. omega. Qed.
 
 Lemma approx_m2 : forall y a b x : Z, 0 < y -> 0 < a -> a <= y -> 0 < b -> 0 <= x ->
   x < a * b + a -> x / y - 2 <= x / a * (a * b / y) / b.
 
   intros y a b x lt_0_y lt_0_a lt_a_y lt_0_b le_0_x lt_x_ab.
-  apply Zle_trans with (x / a * a / y - 1). cut (x / y - 1 <= x / a * a / y). omega.
+  apply Z.le_trans with (x / a * a / y - 1). cut (x / y - 1 <= x / a * a / y). omega.
   apply approx_m1_two with (b := b); assumption. apply approx_m1_one; omega. Qed.
 
 Lemma approx_0_one : forall y a b x : Z, 0 < y -> 0 < a -> 0 < b -> 0 <= x ->
   x / a * (a * b / y) / b <= x / a * a / y.
 
   intros y a b x lt_0_y lt_0_a lt_0_b le_0_x. rewrite <- Zdiv_simpl with (z := y). rewrite <- Zmult_assoc.
-  apply Zle_trans with (x / a * (a * b) / (b * y)). apply Zdiv_le. apply Zmult_lt_0_compat; omega.
+  apply Z.le_trans with (x / a * (a * b) / (b * y)). apply Zdiv_le. apply Zmult_lt_0_compat; omega.
   apply Zmult_le_compat_l. rewrite Zmult_comm. apply Z_mult_div_ge. omega. apply Zle_0_div;
   omega. rewrite Zmult_comm with (m := y). rewrite Zmult_assoc. rewrite Zdiv_simpl. omega. assumption. 
   assumption. assumption. assumption. Qed.
@@ -393,7 +393,7 @@ Lemma approx_0_two : forall y a b x : Z, 0 < y -> 0 < a -> 0 < b -> 0 <= x ->
 Lemma approx_0 : forall y a b x : Z, 0 < y -> 0 < a -> 0 < b -> 0 <= x ->
   x / a * (a * b / y) / b <= x / y.
 
-  intros y a b x lt_0_y lt_0_a lt_0_b le_0_x. apply Zle_trans with (x / a * a / y). apply approx_0_one;
+  intros y a b x lt_0_y lt_0_a lt_0_b le_0_x. apply Z.le_trans with (x / a * a / y). apply approx_0_one;
   assumption. apply approx_0_two with (b := b); assumption. Qed.
 
 Lemma mod_over_div : forall a b c m : Z, 0 < b -> 0 < m -> (a * b + c) / b * b mod m = (a mod m * b + c) / b * b mod m.
@@ -405,7 +405,7 @@ Lemma mod_over_div : forall a b c m : Z, 0 < b -> 0 < m -> (a * b + c) / b * b m
 Lemma sum_r'_i : forall a b m : Z, 0 < m -> (a mod m + b mod m) / m = 0 \/ (a mod m + b mod m) / m = 1.
 
   intros a b m H. cut (0 <= (a mod m + b mod m) / m). cut ((a mod m + b mod m) / m <= 1). omega. 
-  apply Zle_trans with ((m - 1 + m) / m). apply Zdiv_le. omega. apply Zplus_le_compat. cut (a mod m < m). omega.
+  apply Z.le_trans with ((m - 1 + m) / m). apply Zdiv_le. omega. apply Zplus_le_compat. cut (a mod m < m). omega.
   apply Zmod_lt_z_m. omega. cut (b mod m < m). omega. apply Zmod_lt_z_m. omega. replace (m - 1 + m) with (2 * m - 1).
   rewrite Zdiv_mult_minus. omega. omega. omega. omega. ring. apply Zle_0_div. fold (0 + 0). apply Zplus_le_compat. 
   apply Zmod_le_0_z. omega. apply Zmod_le_0_z. omega. omega. Qed.
@@ -423,18 +423,18 @@ Lemma div_m_1 : forall m : Z, 0 < m -> 2 ^ Zlog_sup m / m = 1.
   intros m H. elim (Zle_lt_or_eq 1 m). intro H0. replace (2 ^ Zlog_sup m) with (1 * m + (2 ^ Zlog_sup m - m)).
   apply Zdiv_mult_plus. omega. cut (m <= 2 ^ Zlog_sup m). omega. elim (Zlog_sup_correct2 m). tauto. assumption.
   cut (2 ^ Zlog_sup m < m + m). omega. 
-  apply Zlt_le_trans with (2 ^ (Zlog_sup m - 1) + 1 + (2 ^ (Zlog_sup m - 1) + 1)).
+  apply Z.lt_le_trans with (2 ^ (Zlog_sup m - 1) + 1 + (2 ^ (Zlog_sup m - 1) + 1)).
   replace (2 ^ (Zlog_sup m - 1) + 1 + (2 ^ (Zlog_sup m - 1) + 1))
      with (2 ^ (Zlog_sup m - 1) + 2 ^ (Zlog_sup m - 1) + 2). rewrite Z_pow_plus.
   replace (Zlog_sup m - 1 + 1) with (Zlog_sup m). omega. ring. cut (1 <= Zlog_sup m). omega. replace 1 with (Zlog_sup 2).
   apply Zlog_sup_seq. omega. trivial. ring. apply Zplus_le_compat. cut (2 ^ (Zlog_sup m - 1) < m). omega.
   elim (Zlog_sup_correct2 m). tauto. assumption. cut (2 ^ (Zlog_sup m - 1) < m). omega. elim (Zlog_sup_correct2 m). tauto.
-  assumption. ring. intro H0. rewrite <- H0. simpl. unfold Zdiv. trivial. omega. Qed.
+  assumption. ring. intro H0. rewrite <- H0. simpl. unfold Z.div. trivial. omega. Qed.
 
 Lemma div_r'_i : forall a m : Z, 0 < m -> a mod 2 ^ Zlog_sup m / m = 0 \/ a mod 2 ^ Zlog_sup m / m = 1.
 
   intros a m H. cut (0 <= a mod 2 ^ Zlog_sup m / m). cut (a mod 2 ^ Zlog_sup m / m <= 1). omega.
-  apply Zle_trans with (2 ^ Zlog_sup m / m). apply Zdiv_le. assumption. cut (a mod 2 ^ Zlog_sup m < 2 ^ Zlog_sup m). omega.
+  apply Z.le_trans with (2 ^ Zlog_sup m / m). apply Zdiv_le. assumption. cut (a mod 2 ^ Zlog_sup m < 2 ^ Zlog_sup m). omega.
   apply Zmod_lt_z_m. apply lt_0_Zpow. apply Zlog_sup_correct1. assumption. rewrite div_m_1. omega. assumption. apply Zle_0_div.
   apply Zmod_le_0_z. apply lt_0_Zpow. apply Zlog_sup_correct1. assumption. assumption. Qed.
 
